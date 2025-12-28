@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Pet Sitter Estimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #fdfcf8;
+        --card-bg: #ffffff;
+        --text-color: #333333;
+        --accent-green: #8c977d;
+        --accent-dark-green: #667058;
+        --warm-brown: #a68a7b;
+        --deep-earth: #6e5244;
+        --gold: #c5a065;
+        --border: #e8e8e0;
+        --light-bg: #f9f9f5;
+        --terracotta-bg: #F0DED3;
+        --forest-brown-bg: #506256;
+        
+        /* UI Colors */
+        --clay-bg: #FAF3EE;        
+        --terracotta-accent: #C57A5D;
+        --dusty-blue: #7a9cb3;    
+        
+        /* New Earth Yellow */
+        --earth-yellow: #E1A95F;
+        --pale-terracotta: #f4e9e4;
+        
+        /* Button Colors */
+        --btn-copy-color: #9C593A;
+
+        /* Calendar */
+        --cal-slot-bg: #ffffff;
+        --cal-slot-border: #dcdcdc;
+        --cal-header-bg: #f2f2f0;
+        --cal-slot-none-bg: #ffffff;
+        --cal-slot-none-text: #555555;
+      }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      
+      body {
+        font-family: 'Noto Sans JP', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0; padding: 20px;
+        display: flex; justify-content: center;
+        line-height: 1.6; font-size: 16px;
+      }
+
+      @media (max-width: 600px) {
+        body { padding: 0; background-color: var(--card-bg); }
+        .container { 
+          box-shadow: none !important; 
+          border-radius: 0 !important; 
+          padding: 20px 15px !important; 
+        }
+        h1 { font-size: 20px !important; }
+      }
+
+      .container {
+        background-color: var(--card-bg);
+        width: 100%; max-width: 600px;
+        padding: 35px; border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      }
+
+      h1 { font-size: 24px; color: var(--deep-earth); text-align: center; margin-bottom: 5px; letter-spacing: 0.05em; font-weight: 700; }
+      .tax-notice { text-align: center; font-size: 12px; color: #888; margin-bottom: 25px; }
+      
+      /* タブ切り替え (プラン用) */
+      .tab-container {
+        display: flex; justify-content: center; margin-bottom: 25px;
+        background-color: var(--light-bg); padding: 5px; border-radius: 12px;
+      }
+      .tab-btn {
+        flex: 1; padding: 12px; border: none; background: transparent;
+        border-radius: 8px; cursor: pointer; font-weight: 700; color: #888;
+        font-size: 14px; transition: all 0.3s ease;
+      }
+      .tab-btn.active {
+        background-color: var(--accent-dark-green); color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      
+      /* タブ切り替え (ユーザータイプ用) */
+      .user-type-selector {
+        display: flex; justify-content: center; margin-bottom: 20px;
+        background-color: var(--light-bg); padding: 5px; border-radius: 12px;
+        border: 1px solid var(--border);
+      }
+      .user-type-btn {
+        flex: 1; padding: 10px; border: none; background: transparent;
+        border-radius: 8px; cursor: pointer; font-weight: 700; color: #888;
+        font-size: 13px; transition: all 0.3s ease;
+      }
+      .user-type-btn.active {
+        background-color: var(--earth-yellow); color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      .plan-content { display: none; }
+      .plan-content.active { display: block; animation: fadeIn 0.4s ease; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+      h3 { 
+        font-size: 17px; margin: 0 0 15px 0; font-weight: 700; 
+        color: var(--accent-dark-green); border-left: 5px solid var(--accent-green); padding-left: 12px; 
+      }
+      
+      /* Accordion Styles */
+      .section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+      .section:last-child { border-bottom: none; }
+      
+      .accordion-wrapper {
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 20px;
+      }
+      .accordion-header {
+        cursor: pointer;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 15px;
+        background-color: var(--light-bg);
+        font-weight: 700;
+        color: var(--accent-dark-green);
+        transition: background-color 0.2s;
+      }
+      .accordion-header:active { background-color: #eee; }
+      .toggle-icon { font-size: 12px; transition: transform 0.3s; color: #888; }
+      
+      .accordion-content {
+        display: none; padding: 15px; background-color: #fff;
+        animation: slideDown 0.3s ease-out;
+      }
+      .accordion-content.open { display: block; }
+      .accordion-wrapper.open .toggle-icon { transform: rotate(180deg); }
+
+      @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Form Elements */
+      select, input[type="text"], input[type="tel"], input[type="email"], textarea, input[type="date"], input[type="time"] {
+        width: 100%; padding: 12px; 
+        border: 1px solid var(--border); border-radius: 8px; 
+        font-size: 16px; background-color: var(--light-bg); font-family: inherit;
+        appearance: none; margin-bottom: 10px; color: var(--text-color);
+      }
+      textarea { resize: vertical; }
+
+      /* Checkbox Items */
+      .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+      .checkbox-group-row { display: flex; flex-direction: row; gap: 10px; flex-wrap: wrap; }
+      .checkbox-item { 
+        display: flex; align-items: center; justify-content: space-between;
+        background-color: var(--light-bg); padding: 12px 15px; 
+        border-radius: 10px; cursor: pointer; font-size: 15px; 
+        transition: background 0.2s;
+      }
+      .check-label-wrap { display: flex; align-items: center; flex: 1; }
+      
+      /* --- Checkbox Mobile Fix --- */
+      input[type="checkbox"] { 
+        appearance: auto; /* Fix for iOS rendering issues */
+        transform: scale(1.3); margin-right: 12px; accent-color: var(--accent-green); flex-shrink: 0; 
+      }
+      
+      .check-text-col { display: flex; flex-direction: column; line-height: 1.3; }
+      .check-main { font-weight: 500; font-size: 15px; color: var(--text-color); }
+      .check-sub { font-size: 11px; color: #777; margin-top: 3px; font-weight: 400; }
+      .price-tag { font-weight: 700; font-size: 14px; color: var(--accent-dark-green); white-space: nowrap; margin-left: 10px; }
+      .note { font-size: 12px; color: #777; margin-top: 8px; display: block; line-height: 1.5; }
+      .note-highlight { background-color: #fff8e1; padding: 15px; border-radius: 8px; border: 1px dashed #e8b466; color: #555; font-size: 13px; line-height: 1.7; }
+
+      /* Priority Pass Specifics */
+      .pp-header-row {
+          background-color: var(--terracotta-accent);
+          color: #fff;
+          padding: 12px 15px;
+          display: flex; align-items: center; justify-content: space-between;
+          font-weight: normal; 
+          cursor: pointer;
+          border-radius: 12px 12px 0 0;
+      }
+      .pp-header-row .check-label-wrap { color: #fff; }
+      
+      /* --- FIX: Changed white accent color to dark earth for better visibility on iOS/Mobile --- */
+      .pp-header-row input[type="checkbox"] { accent-color: var(--deep-earth); }
+      
+      .pp-header-right { display: flex; align-items: center; gap: 10px; }
+      .pp-price-tag { font-weight: normal; color: #fff; font-size: 14px; white-space: nowrap; }
+      
+      .pp-content-frame {
+          border: 1px solid var(--terracotta-accent);
+          border-top: none;
+          background-color: var(--clay-bg);
+          padding: 0; /* Padding handled inside inner divs */
+          display: block; 
+          border-radius: 0 0 12px 12px;
+      }
+      
+      /* PP Display (No Accordion) */
+      .pp-benefits-list {
+          list-style: none; padding: 0; margin: 10px 0 15px 0;
+          font-size: 12px; color: #555;
+      }
+      .pp-benefits-list li { margin-bottom: 5px; padding-left: 0; text-indent: -0.5em; margin-left: 0.5em;}
+      
+      .pp-price-info {
+          font-weight: 700; color: var(--deep-earth);
+          margin-bottom: 10px; display: block;
+      }
+      
+      /* Premium Booking Row */
+      .premium-row {
+          padding: 15px;
+          display: flex; align-items: center; justify-content: space-between;
+      }
+      .premium-left { display: flex; align-items: center; gap: 12px; }
+      .premium-label { font-weight: 700; font-size: 15px; color: var(--text-color); }
+      
+      /* Best Price Button Label */
+      .best-price-badge {
+          background-color: #E1A95F;
+          color: #fff;
+          font-size: 12px; font-weight: 700;
+          padding: 5px 10px; border-radius: 20px;
+          white-space: nowrap;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      /* Highlight / Pricing Area */
+      .highlight-area {
+        background-color: var(--terracotta-bg);
+        border-radius: 12px; overflow: hidden;
+        margin-bottom: 20px;
+      }
+      .highlight-header {
+          background-color: var(--terracotta-accent);
+          color: #fff;
+          padding: 10px;
+          text-align: center;
+          font-weight: 700;
+          font-size: 15px;
+      }
+      .highlight-body {
+          padding: 20px;
+          text-align: center;
+          font-size: 16px;
+          color: #222;
+          background-color: var(--clay-bg);
+      }
+      .highlight-row { margin-bottom: 5px; }
+      .strike { text-decoration: none; font-weight: 400; font-size: 14px; color: #333; }
+      .small-note { font-size: 12px; font-weight: normal; }
+
+      /* Result Area */
+      .result-area { 
+        background-color: var(--forest-brown-bg);
+        color: white; padding: 20px; 
+        border-radius: 15px; margin: 10px 0 30px; text-align: center;
+        box-shadow: 0 4px 10px rgba(80, 98, 86, 0.3);
+      }
+      .result-total { font-size: 32px; font-weight: 700; margin-top: 5px; line-height: 1.2; }
+      .result-label { font-size: 14px; opacity: 0.9; }
+
+      /* Buttons */
+      .btn { 
+        display: block; width: 100%; padding: 16px; border: none; border-radius: 10px; 
+        font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; 
+        text-decoration: none; transition: 0.3s; box-sizing: border-box; 
+      }
+      .btn-copy { background-color: var(--btn-copy-color); color: white; margin-top: 25px; box-shadow: 0 4px 0 #7a462e; }
+      .btn-copy:active { transform: translateY(4px); box-shadow: none; }
+      
+      .btn-line-earth { background-color: var(--accent-dark-green); color: white; margin-top: 15px; box-shadow: 0 4px 0 #3e4d43; }
+      .btn-line-earth:active { transform: translateY(4px); box-shadow: none; }
+
+      /* Calendar Styles (Uniform Grid) */
+      .cal-container {
+        display: flex; flex-direction: column; gap: 10px;
+        margin-bottom: 15px; user-select: none;
+        overflow: hidden; /* For Animation */
+        position: relative;
+        min-height: 300px;
+      }
+      .cal-grid-3 {
+        display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;
+        transition: transform 0.3s ease-out; /* Add transition for smoothness if needed */
+        width: 100%;
+      }
+      
+      /* --- Calendar Animations --- */
+      .anim-slide-in-right { animation: slideInRight 0.3s forwards; }
+      .anim-slide-in-left { animation: slideInLeft 0.3s forwards; }
+
+      @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(50px); }
+          to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-50px); }
+          to { opacity: 1; transform: translateX(0); }
+      }
+
+      .cal-day-col {
+        background: #fff; border: 1px solid var(--border); border-radius: 8px;
+        overflow: hidden; display: flex; flex-direction: column;
+      }
+      .cal-day-header {
+        background-color: var(--cal-header-bg); text-align: center; padding: 6px 2px;
+        font-size: 12px; font-weight: 700; border-bottom: 1px solid var(--border);
+        color: var(--accent-dark-green);
+      }
+      .cal-day-header.sunday { color: #e74c3c; }
+      .cal-day-header.saturday { color: #3498db; }
+      .cal-slots { padding: 5px; display: flex; flex-direction: column; gap: 4px; }
+      
+      .cal-slot-btn {
+        width: 100%; text-align: left; padding: 6px 4px;
+        font-size: 11px; 
+        border: 1px solid var(--border);
+        background-color: #fff; border-radius: 4px; cursor: pointer;
+        line-height: 1.3; color: #555; min-height: 48px;
+        display: flex; flex-direction: column; justify-content: center;
+      }
+      .cal-slot-btn span.time { font-weight: 700; font-size: 12px; display: block; margin-bottom: 1px; } 
+      
+      .cal-slot-btn.selected {
+        background-color: var(--accent-green); color: white;
+        border-color: var(--accent-dark-green);
+      }
+      .cal-slot-btn.selected span.time { color: white; }
+      
+      /* Updated None slot style: #FFF9EE (Off-white) */
+      .cal-slot-btn[data-type="none"] {
+        background-color: #FFF9EE; 
+        color: #6e5244; 
+        border-color: #E1A95F;
+      }
+      .cal-slot-btn[data-type="none"].selected {
+        background-color: #C57A5D; 
+        color: white;
+        border-color: #6e5244;
+      }
+      .cal-slot-btn.summer {
+        background-color: #FDF9F0; border-color: #E1A95F; color: #9C593A;
+      }
+      .cal-slot-btn.summer.selected {
+        background-color: #E1A95F; color: white; border-color: #9C593A;
+      }
+      
+      .cal-nav { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 5px; border-radius: 8px; margin-bottom: 5px; }
+      .cal-nav-btn { width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; }
+      .cal-current-range { font-size: 13px; font-weight: 700; }
+      
+      /* FIX: Increased default height for selected dates box */
+      textarea.selected-dates-area { min-height: 120px; font-size: 13px; margin-top: 5px; }
+
+      /* Special Plans Schedule Adder Styles */
+      .schedule-adder {
+        background-color: var(--pale-terracotta);
+        padding: 20px; border-radius: 12px;
+      }
+      .flex-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-end; }
+      .flex-col { flex: 1; }
+      .label-mini { font-size: 12px; font-weight: 700; color: var(--warm-brown); margin-bottom: 4px; display: block; }
+      
+      .adder-option {
+        margin-bottom: 15px;
+        background: rgba(255,255,255,0.6);
+        padding: 12px 15px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.8);
+      }
+      .support-row { display: flex; align-items: center; width: 100%; cursor: pointer; }
+      .support-label { font-weight: 700; font-size: 15px; margin-left: 8px; flex: 1; color: var(--text-color); }
+      .support-price { font-size: 15px; font-weight: 700; color: var(--terracotta-accent); margin-left: auto; white-space: nowrap; }
+      .support-note { display: block; font-size: 11px; color: #777; margin-top: 5px; margin-left: 36px; }
+
+      .btn-add {
+        background-color: var(--earth-yellow);
+        color: #fff;
+        border: none; padding: 12px; border-radius: 8px;
+        width: 100%; font-weight: 700; font-size: 15px;
+        cursor: pointer; box-shadow: 0 2px 0 #cca366;
+        transition: transform 0.1s;
+      }
+      .btn-add:active { transform: translateY(2px); box-shadow: none; }
+      .btn-add:disabled { background-color: #ddd; box-shadow: none; cursor: not-allowed; }
+
+      #scheduleListArea { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+      
+      .schedule-card {
+        background-color: #fff;
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--accent-green);
+        border-radius: 8px; padding: 15px;
+        position: relative;
+        animation: fadeIn 0.3s ease;
+      }
+      .sc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+      .sc-info-col { flex: 1; }
+      .sc-date { font-weight: 700; color: var(--accent-dark-green); font-size: 16px; display: block; }
+      .sc-plan-name { font-size: 12px; color: var(--warm-brown); font-weight: 700; display: inline-block; background: #f4e9e4; padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
+      
+      .sc-remove { 
+        color: #999; font-size: 20px; cursor: pointer; line-height: 1; padding: 5px; margin-left: 10px;
+      }
+      .sc-time-row { font-size: 14px; color: #555; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+      .sc-arrow { color: var(--earth-yellow); font-weight: bold; }
+      .sc-price { 
+        margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);
+        text-align: right; font-weight: 700; color: var(--terracotta-accent); 
+      }
+      .sc-next-day {
+        font-size: 10px; background-color: var(--earth-yellow); color: white;
+        padding: 2px 5px; border-radius: 4px; margin-left: 5px; vertical-align: middle;
+      }
+      .badge-support { font-size: 10px; border: 1px solid var(--terracotta-accent); color: var(--terracotta-accent); padding: 1px 4px; border-radius: 3px; margin-left: 5px; }
+
+      /* Hidden Sections */
+      .hidden { display: none !important; }
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Pet Sitter Estimate</h1>
+      <div class="tax-notice">＊料金はすべて税込表示です</div>
+      
+      <div class="tab-container">
+        <button type="button" class="tab-btn active" onclick="switchTab('original')">オリジナルプラン</button>
+        <button type="button" class="tab-btn" onclick="switchTab('special')">その他のプラン</button>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- オリジナルプラン -->
+      <!-- ============================================= -->
+      <div id="plan-original" class="plan-content active">
+        <form id="calcForm">
+            
+            <!-- User Type Tabs -->
+            <div class="user-type-selector">
+                <button type="button" class="user-type-btn" id="btn-first" onclick="setUserType('first')">初めての利用</button>
+                <button type="button" class="user-type-btn active" id="btn-second" onclick="setUserType('second')">2回目以降</button>
+            </div>
+            <input type="hidden" id="userTypeState" value="second">
+
+            <div class="section">
+                <h3>ペットの種類</h3>
+                <div class="checkbox-group-row">
+                    <label class="checkbox-item" style="flex:1;">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" id="petDog" class="pet-check">
+                            <span class="check-main">犬</span>
+                        </div>
+                    </label>
+                    <label class="checkbox-item" style="flex:1;">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" id="petCat" class="pet-check">
+                            <span class="check-main">猫</span>
+                        </div>
+                    </label>
+                    <label class="checkbox-item" style="flex:1;">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" id="petOther" class="pet-check">
+                            <span class="check-main">その他</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section">
+            <h3>オリジナルプラン コース選択</h3>
+            <select id="course">
+                <option value="3300">30分コース　3,300円</option>
+                <option value="3740">45分コース　3,740円</option>
+                <option value="4180">60分コース　4,180円</option>
+                <option value="5060">75分（60分＋15分）5,060円</option>
+                <option value="5940">90分（60分＋30分）5,940円</option>
+                <option value="6820">105分（60分＋45分）6,820円</option>
+                <option value="7700">120分（60分＋60分）7,700円</option>
+            </select>
+            
+            <!-- Summer Walk Section (Moved Here) -->
+            <label class="checkbox-item" style="margin-top:10px;">
+                <div class="check-label-wrap">
+                    <input type="checkbox" id="summerWalk" value="440" data-label="夏季のお散歩">
+                    <div class="check-text-col">
+                    <span class="check-main">夏季のお散歩</span>
+                    <span class="check-sub">6月1日～9月30日のみ有効</span>
+                    </div>
+                </div>
+                <span class="price-tag">+440円</span>
+            </label>
+
+            </div>
+
+            <!-- Priority Pass Section -->
+            <div class="section" style="border-bottom:none; margin-bottom:10px;">
+                <div>
+                    <!-- 1st Line: Always Visible -->
+                    <div class="pp-header-row">
+                        <label class="check-label-wrap" style="cursor: pointer;" onclick="event.stopPropagation()">
+                            <input type="checkbox" id="priorityPass" data-label="プライオリティ・パス" onchange="togglePPState()">
+                            <div class="check-text-col">
+                                <span class="check-main" style="color:#fff;">プライオリティ・パス</span>
+                            </div>
+                        </label>
+                        <div class="pp-header-right">
+                            <span class="pp-price-tag" id="ppDiscountTag"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Content: Frame (Always Visible) -->
+                    <div class="pp-content-frame" id="ppContent">
+                        
+                        <!-- REMOVED Accordion Toggle -->
+
+                        <!-- PP Content Body (No Accordion) -->
+                        <div style="padding: 15px;">
+                            <div>
+                                <span class="pp-price-info">月 3,300円</span>
+                                <ul class="pp-benefits-list">
+                                    <li>＊6ヶ月先までの先行予約が解禁されます。</li>
+                                    <li>＊サービス料金が440円割引されます。</li>
+                                    <li>＊一部のオプションメニューも優待料金が適用されます。</li>
+                                    <li>＊往復交通費が220円割引されます。</li>
+                                    <li>＊ファーストミートが〈無料〉になります。</li>
+                                </ul>
+                                <!-- New Message Replacement for Button -->
+                                <div style="font-weight:700; color:var(--terracotta-accent); font-size:13px; text-align:center; margin-top:10px; border:1px dashed var(--terracotta-accent); padding:8px; border-radius:6px; background-color:#fff;">
+                                    新規購入は担当シッターにご連絡ください。
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Premium Booking (White Frame) -->
+                        <div class="premium-row" id="premiumRow" style="background-color: #fff; margin: 15px; border-radius: 8px; border: 1px solid #eee;">
+                            <div class="premium-left" id="premiumLeft">
+                                <input type="checkbox" id="premiumBooking" data-label="プレミアム予約" disabled>
+                                <span class="premium-label">プレミアム予約</span>
+                            </div>
+                            <div class="premium-right">
+                                <span class="best-price-badge">最安料金保証</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Notes Moved Inside Frame -->
+                        <div style="padding: 0 15px 15px 15px;">
+                            <span class="note" style="margin:0; font-size:11px;">＊プライオリティ・パスの継続利用 3ヶ月目よりご利用いただけます。</span>
+                            <span class="note" style="margin:0; font-size:11px;">＊年間パスを購入された方、定期利用される方は1ヶ月目からご利用いただけます。</span>
+                            <span class="note" style="margin:0; font-size:11px;">＊事前決済・返金不可ですが、一定の条件下でスケジュール変更は可能です。</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Options Menu (Accordion) -->
+            <div class="section accordion-wrapper">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    オプションメニュー <span class="toggle-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <span class="note" style="margin-bottom:15px;">＊内容によって対応できるスタッフが限られるため、まずはご相談ください。</span>
+                    
+                    <!-- Added Header -->
+                    <h3>ワンコインメニュー</h3>
+
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" class="opt" value="550" data-label="シニアサポート">
+                            <div class="check-text-col">
+                            <span class="check-main">シニアサポート</span>
+                            <span class="check-sub">食事・排泄介助、リハビリなど</span>
+                            </div>
+                        </div>
+                        <span class="price-tag">+550円</span>
+                        </label>
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" class="opt" value="550" data-label="看護ケア">
+                            <div class="check-text-col">
+                            <span class="check-main">看護ケア</span>
+                            <span class="check-sub">体調管理、投薬など</span>
+                            </div>
+                        </div>
+                        <span class="price-tag">+550円</span>
+                        </label>
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" class="opt" value="550" data-label="社会化サポート">
+                            <div class="check-text-col">
+                            <span class="check-main">社会化サポート</span>
+                            <span class="check-sub">場馴れ、人馴れ、合図（キュー）など</span>
+                            </div>
+                        </div>
+                        <span class="price-tag">+550円</span>
+                        </label>
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" class="opt" value="550" data-label="送迎">
+                            <div class="check-text-col">
+                            <span class="check-main">病院・サロン送迎</span>
+                            <span class="check-sub">シッティング前後にご自宅または店舗まで送迎</span>
+                            </div>
+                        </div>
+                        <span class="price-tag">+550円</span>
+                        </label>
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" class="opt" value="550" data-label="買い物代行">
+                            <div class="check-text-col">
+                            <span class="check-main">買い物代行</span>
+                            <span class="check-sub">近隣の店舗のみ対応可</span>
+                            </div>
+                        </div>
+                        <span class="price-tag">+550円</span>
+                        </label>
+                    </div>
+
+                    <!-- Specialty Services -->
+                      <h3 style="margin-top:20px;">スペシャリティサービス</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <div class="check-label-wrap">
+                                <input type="checkbox" class="speciality" value="0" data-label="出張トリミング／シャンプー">
+                                <div class="check-text-col">
+                                    <span class="check-main">出張トリミング／シャンプー</span>
+                                    <span class="check-sub">トリマーが訪問して、ご自宅でカットやシャンプーを施します。</span>
+                                </div>
+                            </div>
+                            <span class="price-tag speciality-price">要相談</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <div class="check-label-wrap">
+                                <input type="checkbox" class="speciality" value="0" data-label="出張ドッグトレーニング">
+                                <div class="check-text-col">
+                                    <span class="check-main">出張ドッグトレーニング</span>
+                                    <span class="check-sub">定期的なレッスンを通して、問題行動の解消やQOL（生活の質）向上を目指します。</span>
+                                </div>
+                            </div>
+                            <span class="price-tag speciality-price">要相談</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <div class="check-label-wrap">
+                                <input type="checkbox" class="speciality" value="0" data-label="付き添い代行サービス">
+                                <div class="check-text-col">
+                                    <span class="check-main">付き添い代行サービス</span>
+                                    <span class="check-sub">動物病院への付き添いやドッグランに同伴します。</span>
+                                </div>
+                            </div>
+                            <span class="price-tag speciality-price">要相談</span>
+                        </label>
+                    </div>
+
+                    <!-- Flexible Menu -->
+                    <h3 style="margin-top:20px;">フレキシブルメニュー</h3>
+                    <span class="note" style="margin-bottom:10px; color:var(--terracotta-accent);">要事前相談：緊急時や担当シッターが対応できる場合のみ</span>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" id="today" data-label="前日・当日予約">
+                            <div class="check-text-col">
+                            <span class="check-main">前日・当日予約</span>
+                            <span class="check-sub">直前（2日前の18時以降）でもご予約を承ります。</span>
+                            </div>
+                        </div>
+                        <span class="price-tag" id="todayP">+990円</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" id="outOfHours" data-label="営業時間外対応">
+                            <div class="check-text-col">
+                            <span class="check-main">営業時間外対応</span>
+                            <span class="check-sub">5時 ～ 7時／21時 ～ 22時に特別対応をします。</span>
+                            </div>
+                        </div>
+                        <span class="price-tag" id="outP">+2,640円</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" id="midnight" data-label="深夜・早朝対応">
+                            <div class="check-text-col">
+                            <span class="check-main">深夜・早朝対応</span>
+                            <span class="check-sub">22時 ～ 翌5時に特別対応をします。</span>
+                            </div>
+                        </div>
+                        <span class="price-tag" id="midP">+3,960円</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Highlight Area -->
+            <div class="highlight-area">
+                <div class="highlight-header">1回分のご利用料金</div>
+                <div class="highlight-body">
+                    <div class="highlight-row">
+                        <span style="font-size:15px; font-weight:700;">ご利用料金：</span>
+                        <span style="font-size:19px; font-weight:700;"><span id="servOnly">0</span>円</span>
+                    </div>
+                    <div class="highlight-row">
+                        <span style="font-size:15px; font-weight:700;">往復交通費：</span>
+                        <span style="font-size:19px; font-weight:700;"><span id="transP">770</span>円</span>
+                        <span id="transNote" class="small-note"></span>
+                    </div>
+                    <div style="text-align:left; margin-top:15px;" class="note">
+                        ＊対応エリアの往復交通費は一律料金です。<br>
+                        ＊エリア外のご依頼は、別途所要時間に応じた追加料金が掛かります。
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+            <h3>ご希望のシッティングスケジュール</h3>
+            
+            <div class="cal-nav">
+                <button type="button" class="cal-nav-btn" id="calPrevBtn">&lt;</button>
+                <span class="cal-current-range" id="calRangeLabel">Loading...</span>
+                <button type="button" class="cal-nav-btn" id="calNextBtn">&gt;</button>
+            </div>
+            
+            <div class="cal-container">
+                <div class="cal-grid-3" id="calGrid"></div>
+            </div>
+            <div style="text-align:left; font-size:12px; color:#777; margin-top:5px;">＊「時間指定なし」は1日4回まで追加できます。</div>
+            <div style="text-align:center; font-size:12px; color:#999; margin-top:5px;">↔ 左右にスワイプして日付を移動</div>
+
+            <textarea id="selectedDates" class="selected-dates-area" placeholder="選択された日程がここに表示されます..." readonly></textarea>
+            
+            <div style="text-align:right; font-weight:700; color:var(--accent-dark-green); margin-top:5px;">
+                ご依頼回数：<span id="displayCount">0</span>回
+            </div>
+            </div>
+            
+            <!-- GROOMING MENU SECTION -->
+            <div class="section" id="groomingSection" style="display:none;">
+                <h3>グルーミングメニュー</h3>
+                <span class="note">＊シッティングの合間に限られた道具で対応するため、保定が難しい場合や嫌がる子への施術はできません。</span>
+                <div id="groomingDog" class="grooming-section" style="margin-top:15px;">
+                    <div style="font-weight:700; color:var(--accent-dark-green); border-bottom:1px dotted #ccc;">《犬のグルーミングメニュー》</div>
+                    <!-- New Grooming Set Item added dynamically at top of list logic -->
+                    <div class="checkbox-group" id="dogGroomingList" style="margin-top:10px;"></div>
+                </div>
+                <div id="groomingCat" class="grooming-section" style="margin-top:15px;">
+                    <div style="font-weight:700; color:var(--accent-dark-green); border-bottom:1px dotted #ccc;">《猫のグルーミングメニュー》</div>
+                    <div class="checkbox-group" id="catGroomingList" style="margin-top:10px;"></div>
+                </div>
+                <div style="text-align:right; margin-top:10px; font-weight:700;">グルーミング小計: <span id="groomingTotal">0</span>円</div>
+            </div>
+
+            <div class="result-area">
+            <div class="result-label"><span id="totalLabel">合計金額</span></div>
+            <div class="result-total"><span id="grand">0円</span></div>
+            </div>
+
+            <div class="section" style="border:none;">
+            <h3>お客さまの情報</h3>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <input type="text" id="name" placeholder="お名前">
+                <!-- Inputs for First Time Only -->
+                <div id="firstTimeFields" class="hidden" style="display:flex; flex-direction:column; gap:12px;">
+                    <input type="text" id="address" placeholder="ご住所">
+                    <input type="tel" id="tel" placeholder="電話番号">
+                    <input type="email" id="email" placeholder="メールアドレス">
+                    <textarea id="petInfo" rows="3" placeholder="ペットの情報（種類、名前、年齢など）"></textarea>
+                </div>
+            </div>
+
+            <!-- First Meet (Standard Section Layout) -->
+            <div id="firstMeetSection" class="hidden" style="margin-top:20px;">
+                <h3>ファーストミート（初回打ち合わせ）</h3>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                    <div class="check-label-wrap">
+                        <input type="checkbox" id="fmVisit" value="3300" data-label="ファーストミート(訪問)">
+                        <div class="check-text-col">
+                        <span class="check-main">担当シッターの訪問を希望する</span>
+                        </div>
+                    </div>
+                    <span class="price-tag" id="fmVisitTag">+3,300円</span>
+                    </label>
+                    <label class="checkbox-item">
+                    <div class="check-label-wrap">
+                        <input type="checkbox" id="fmOnline" value="3300" data-label="ファーストミート(WEB)">
+                        <div class="check-text-col">
+                        <span class="check-main">WEBミーティングを希望する</span>
+                        </div>
+                    </div>
+                    <span class="price-tag" id="fmOnlineTag">+3,300円</span>
+                    </label>
+                </div>
+                <!-- First Meet Notes -->
+                <div style="margin-top:15px;">
+                      <span class="note">＊対応エリアに関わらず、往復交通費は無料です。</span>
+                      <span class="note" style="margin-top:3px;">＊コインパーキングを利用する場合は、別途実費料金が必要です。</span>
+                      <div style="margin-top:10px; font-weight:700; color:var(--accent-dark-green); font-size:13px;">
+                          ＊日程調整は担当シッターからご連絡します。
+                      </div>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-copy" onclick="copyTextOriginal()">この内容をコピーする</button>
+            
+            <div style="text-align:center; margin-top:25px;">
+                <p class="note" style="font-size:14px; margin-bottom: 10px;">↓ コピーした後、LINEに貼り付けてください ↓</p>
+                <a href="https://lin.ee/Ja5irQj" target="_blank" class="btn btn-line-earth">cocoarucoの公式LINEを開く</a>
+            </div>
+            
+            <div style="text-align:center; margin-top:40px; font-size:12px; color:#ccc;">
+                © 2026 cocoaruco, Ltd. All rights reserved. Proprietary information.
+            </div>
+            </div>
+        </form>
+      </div>
+      
+      <!-- Other Plans (Special Plans) -->
+      <div id="plan-special" class="plan-content">
+        <form id="calcFormSp">
+            
+            <!-- User Type Tabs (Duplicate for Special Plan) -->
+            <div class="user-type-selector">
+                <button type="button" class="user-type-btn" id="btn-first-sp" onclick="setUserTypeSp('first')">初めての利用</button>
+                <button type="button" class="user-type-btn active" id="btn-second-sp" onclick="setUserTypeSp('second')">2回目以降</button>
+            </div>
+            <input type="hidden" id="sp_userTypeState" value="second">
+
+            <!-- 1. プライオリティ・パス -->
+            <div class="section" style="border-bottom:none; margin-bottom:10px;">
+                <div>
+                    <!-- 1st Line: Always Visible -->
+                    <div class="pp-header-row">
+                        <label class="check-label-wrap" style="cursor: pointer;" onclick="event.stopPropagation()">
+                            <input type="checkbox" id="sp_priorityPass" data-label="プライオリティ・パス" onchange="togglePPStateSp()">
+                            <div class="check-text-col">
+                                <span class="check-main" style="color:#fff;">プライオリティ・パス</span>
+                            </div>
+                        </label>
+                        <div class="pp-header-right">
+                            <span class="pp-price-tag" id="sp_ppDiscountTag"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Body -->
+                    <div class="pp-content-frame">
+                        <div style="padding: 15px;">
+                            <div>
+                                <span class="pp-price-info">月 3,300円</span>
+                                <ul class="pp-benefits-list">
+                                    <li>＊6ヶ月先までの先行予約が解禁されます。</li>
+                                    <li>＊サービス料金が440円割引されます。</li>
+                                    <li>＊一部のオプションメニューも優待料金が適用されます。</li>
+                                    <li>＊往復交通費が220円割引されます。</li>
+                                    <li>＊ファーストミートが〈無料〉になります。</li>
+                                </ul>
+                                <div style="font-weight:700; color:var(--terracotta-accent); font-size:13px; text-align:center; margin-top:10px; border:1px dashed var(--terracotta-accent); padding:8px; border-radius:6px; background-color:#fff;">
+                                    新規購入は担当シッターにご連絡ください。
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Note -->
+                        <div style="padding: 0 15px 15px 15px;">
+                            <span class="note" style="margin:0; font-size:11px;">＊プライオリティ・パスの継続利用 3ヶ月目よりご利用いただけます。</span>
+                            <span class="note" style="margin:0; font-size:11px;">＊年間パスを購入された方、定期利用される方は1ヶ月目からご利用いただけます。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. スケジュール入力 -->
+            <div class="section">
+                <h3>スケジュール入力 <span style="font-size:12px; font-weight:400; color:#666;">(最大9件)</span></h3>
+                
+                <div class="schedule-adder">
+                    <div class="flex-row">
+                        <div class="flex-col" style="flex:1;">
+                            <label class="label-mini">訪問日 <span style="font-size:10px; font-weight:400;">(7日後～)</span></label>
+                            <input type="date" id="sp_addDate">
+                        </div>
+                        <div class="flex-col" style="flex:0.8;">
+                            <label class="label-mini">開始時刻</label>
+                            <input type="time" id="sp_addTime">
+                        </div>
+                    </div>
+
+                    <div class="flex-row">
+                        <div class="flex-col">
+                            <label class="label-mini">プラン</label>
+                            <select id="sp_addPlanType">
+                                <option value="long">長時間プラン</option>
+                                <option value="stay_sleep">宿泊プラン〈添い寝コース〉</option>
+                                <option value="stay_watch">宿泊プラン〈見守りコース〉</option>
+                                <option value="event">イベントプラン</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex-row">
+                        <div class="flex-col">
+                            <label class="label-mini">コース時間</label>
+                            <select id="sp_addDuration"></select>
+                        </div>
+                    </div>
+
+                    <!-- サポートオプション -->
+                    <div class="adder-option" id="sp_supportOptionArea">
+                        <label class="support-row">
+                            <input type="checkbox" id="sp_addSpecialSupport">
+                            <span class="support-label">特別なサポート</span>
+                            <span class="support-price" id="sp_supportPriceNote">1時間ごとに+330円</span>
+                        </label>
+                        <span class="support-note">＊生活介助や看護行為、問題行動のある子への対応などが含まれる場合</span>
+                    </div>
+
+                    <button type="button" class="btn-add" id="sp_btnAddSchedule">リストに追加</button>
+                    <span class="note" style="text-align:center; display:block; margin-top:8px;">※時刻はルールに基づき自動調整される場合があります</span>
+                </div>
+
+                <!-- 追加されたリスト -->
+                <div id="sp_scheduleListArea"></div>
+                
+                <!-- イベントプラン注釈エリア -->
+                <div id="sp_eventPlanNote" class="note note-highlight" style="display:none; margin-top:20px;">
+                    <strong>【イベントプランの出張費について】</strong><br>
+                    イベントプランは対応エリアに関わらず出張対応可能です。出張費の計算は、弊社営業所から現地までの「往復所要時間」と「実費交通費」に基づき別途計算されます。詳しくは公式LINEからお問い合わせください。
+                </div>
+            </div>
+
+            <!-- 合計金額 -->
+            <div class="result-area">
+                <div id="sp_totalLabel" style="font-size:14px; opacity:0.9;">合計金額 (0回分)</div>
+                <div class="result-total" id="sp_grand">0円</div>
+                <!-- REMOVED EXTRA NOTE HERE -->
+            </div>
+
+            <!-- お客さま情報 (Special Plan) -->
+            <div class="section" style="border:none;">
+                <h3>お客さまの情報</h3>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <input type="text" id="sp_name" placeholder="お名前">
+                    <div id="sp_firstTimeFields" class="hidden" style="display:flex; flex-direction:column; gap:12px;">
+                        <input type="text" id="sp_address" placeholder="ご住所">
+                        <input type="tel" id="sp_tel" placeholder="電話番号">
+                        <input type="email" id="sp_email" placeholder="メールアドレス">
+                        <textarea id="sp_petInfo" rows="3" placeholder="ペットの情報（種類、名前、年齢など）"></textarea>
+                    </div>
+                </div>
+
+                <!-- First Meet (Special Plan) -->
+                <div id="sp_firstMeetSection" class="hidden" style="margin-top:20px;">
+                    <h3>ファーストミート（初回打ち合わせ）</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" id="sp_fmVisit" value="3300" data-label="ファーストミート(訪問)">
+                            <div class="check-text-col">
+                            <span class="check-main">担当シッターの訪問を希望する</span>
+                            </div>
+                        </div>
+                        <span class="price-tag" id="sp_fmVisitTag">+3,300円</span>
+                        </label>
+                        <label class="checkbox-item">
+                        <div class="check-label-wrap">
+                            <input type="checkbox" id="sp_fmOnline" value="3300" data-label="ファーストミート(WEB)">
+                            <div class="check-text-col">
+                            <span class="check-main">WEBミーティングを希望する</span>
+                            </div>
+                        </div>
+                        <span class="price-tag" id="sp_fmOnlineTag">+3,300円</span>
+                        </label>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <span class="note">＊対応エリアに関わらず、往復交通費は無料です。</span>
+                        <span class="note" style="margin-top:3px;">＊コインパーキングを利用する場合は、別途実費料金が必要です。</span>
+                        <div style="margin-top:10px; font-weight:700; color:var(--accent-dark-green); font-size:13px;">
+                            ＊日程調整は担当シッターからご連絡します。
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-copy" onclick="copyTextSp()">この内容をコピーする</button>
+                
+                <div style="text-align:center; margin-top:25px;">
+                    <p class="note" style="font-size:14px; margin-bottom: 10px;">↓ コピーした後、LINEに貼り付けてください ↓</p>
+                    <a href="https://lin.ee/Ja5irQj" target="_blank" class="btn btn-line-earth">cocoarucoの公式LINEを開く</a>
+                </div>
+                
+                <div style="text-align:center; margin-top:40px; font-size:12px; color:#ccc;">
+                    © 2026 cocoaruco, Ltd. All rights reserved. Proprietary information.
+                </div>
+            </div>
+        </form>
+      </div>
+
+    </div>
+
+    <script>
+      /* --- Tab Switching --- */
+      function switchTab(plan) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.plan-content').forEach(content => content.classList.remove('active'));
+        if (plan === 'original') {
+            document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+            document.getElementById('plan-original').classList.add('active');
+            updateCalendarUI();
+        } else {
+            document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            document.getElementById('plan-special').classList.add('active');
+            // Init Special Plan
+            updateAdderUI_Sp();
+            updateDateRangeSp();
+        }
+      }
+      
+      /* --- User Type Tab Logic (Original) --- */
+      function setUserType(type) {
+          const firstBtn = document.getElementById('btn-first');
+          const secondBtn = document.getElementById('btn-second');
+          const firstFields = document.getElementById('firstTimeFields');
+          const firstMeet = document.getElementById('firstMeetSection');
+          const hiddenState = document.getElementById('userTypeState');
+          
+          hiddenState.value = type;
+
+          if(type === 'second') {
+              secondBtn.classList.add('active');
+              firstBtn.classList.remove('active');
+              firstFields.classList.add('hidden');
+              firstMeet.classList.add('hidden');
+              document.getElementById('fmVisit').checked = false;
+              document.getElementById('fmOnline').checked = false;
+          } else {
+              firstBtn.classList.add('active');
+              secondBtn.classList.remove('active');
+              firstFields.classList.remove('hidden');
+              firstMeet.classList.remove('hidden');
+          }
+          calcOriginal();
+      }
+
+      /* --- User Type Tab Logic (Special) --- */
+      function setUserTypeSp(type) {
+          const firstBtn = document.getElementById('btn-first-sp');
+          const secondBtn = document.getElementById('btn-second-sp');
+          const firstFields = document.getElementById('sp_firstTimeFields');
+          const firstMeet = document.getElementById('sp_firstMeetSection');
+          const hiddenState = document.getElementById('sp_userTypeState');
+          
+          hiddenState.value = type;
+
+          if(type === 'second') {
+              secondBtn.classList.add('active');
+              firstBtn.classList.remove('active');
+              firstFields.classList.add('hidden');
+              firstMeet.classList.add('hidden');
+              document.getElementById('sp_fmVisit').checked = false;
+              document.getElementById('sp_fmOnline').checked = false;
+          } else {
+              firstBtn.classList.add('active');
+              secondBtn.classList.remove('active');
+              firstFields.classList.remove('hidden');
+              firstMeet.classList.remove('hidden');
+          }
+          renderSchedulesSp(); // Re-calc for FM costs
+      }
+
+      /* --- Accordion Logic --- */
+      function toggleAccordion(header) {
+          const wrapper = header.parentElement;
+          const content = header.nextElementSibling;
+          if (content.classList.contains('open')) {
+              content.classList.remove('open');
+              wrapper.classList.remove('open');
+          } else {
+              content.classList.add('open');
+              wrapper.classList.add('open');
+          }
+      }
+
+      /* --- PP Accordion Logic (Only for Original if needed, though removed from Special) --- */
+      function togglePPDetails(header) {
+          const body = header.nextElementSibling;
+          if(body.classList.contains('open')) {
+              body.classList.remove('open');
+              header.classList.remove('open');
+          } else {
+              body.classList.add('open');
+              header.classList.add('open');
+          }
+      }
+
+      /* --- Priority Pass Logic (Original) --- */
+      function togglePPState() {
+          const isChecked = document.getElementById('priorityPass').checked;
+          const premRow = document.getElementById('premiumRow');
+          const premLeft = document.getElementById('premiumLeft');
+          const premInput = document.getElementById('premiumBooking');
+          
+          if(isChecked) {
+              premRow.classList.remove('disabled'); 
+              premLeft.style.opacity = "1";
+              premLeft.style.pointerEvents = "auto";
+              premInput.disabled = false;
+          } else {
+              premLeft.style.opacity = "0.5";
+              premLeft.style.pointerEvents = "none";
+              premInput.disabled = true;
+              premInput.checked = false;
+          }
+          
+          updateCalendarUI();
+          calcOriginal();
+      }
+
+      /* --- Priority Pass Logic (Special) --- */
+      function togglePPStateSp() {
+          updateDateRangeSp();
+          renderSchedulesSp();
+      }
+      
+      // Init PP State Correctly
+      window.onload = function() {
+          togglePPState();
+          // Init Special UI defaults
+          document.getElementById('sp_addTime').value = "09:00";
+          updateDateRangeSp();
+          updateAdderUI_Sp();
+      };
+
+      /* --- Specialty Service Text Update --- */
+      const specialties = document.querySelectorAll('.speciality');
+      specialties.forEach(chk => {
+          chk.addEventListener('change', function() {
+              const tag = this.closest('.checkbox-item').querySelector('.speciality-price');
+              if(this.checked) {
+                  tag.textContent = "別途お見積り";
+              } else {
+                  tag.textContent = "要相談";
+              }
+              calcOriginal();
+          });
+      });
+
+      /* --- Calendar Logic (Original) --- */
+      const calendarState = { startDate: new Date(), selected: {}, displayDays: 3 };
+      
+      const SLOT_DEFS_NORMAL = [
+        { label: "時間指定なし", type: "none" },
+        { label: "07:00 - 08:00\nアーリータイム", type: "slot_0708" },
+        { label: "08:00 - 12:00\n朝の時間枠", type: "slot_morning" },
+        { label: "12:00 - 15:00\n昼の時間枠", type: "slot_noon" },
+        { label: "15:00 - 19:00\n夕の時間枠", type: "slot_evening" },
+        { label: "19:00 - 20:00\nレイトタイム", type: "slot_1920" }
+      ];
+      
+      const SLOT_SUMMER_EARLY = { label: "06:00 - 09:00\n夏季のお散歩(早朝)", type: "summer_early" };
+      const SLOT_SUMMER_NIGHT = { label: "18:00 - 21:00\n夏季のお散歩(夜半)", type: "summer_night" };
+
+      function toYMD(d) { return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0'); }
+      function getDayLabel(d) { const days = ['日','月','火','水','木','金','土']; return `${d.getMonth()+1}/${d.getDate()} (${days[d.getDay()]})`; }
+
+      function updateCalendarUI() {
+        const grid = document.getElementById('calGrid');
+        const rangeLabel = document.getElementById('calRangeLabel');
+        const isDog = document.getElementById('petDog').checked;
+        
+        if (calendarState.startDate < new Date().setHours(0,0,0,0)) calendarState.startDate = new Date();
+        
+        let tempDate = new Date(calendarState.startDate);
+        let endDate = new Date(tempDate); endDate.setDate(endDate.getDate() + 2);
+        rangeLabel.textContent = `${tempDate.getFullYear()}.${tempDate.getMonth()+1}.${tempDate.getDate()} - ${endDate.getMonth()+1}.${endDate.getDate()}`;
+        
+        grid.innerHTML = "";
+        let currentLoopDate = new Date(calendarState.startDate);
+
+        for (let i = 0; i < calendarState.displayDays; i++) {
+            const dateKey = toYMD(currentLoopDate);
+            const dayCol = document.createElement('div');
+            dayCol.className = 'cal-day-col';
+
+            const header = document.createElement('div');
+            header.className = 'cal-day-header';
+            if (currentLoopDate.getDay() === 0) header.classList.add('sunday');
+            if (currentLoopDate.getDay() === 6) header.classList.add('saturday');
+            header.textContent = getDayLabel(currentLoopDate);
+            dayCol.appendChild(header);
+
+            const slotsDiv = document.createElement('div');
+            slotsDiv.className = 'cal-slots';
+
+            const m = currentLoopDate.getMonth() + 1;
+            const isSummerDate = (m >= 6 && m <= 9);
+            
+            let slotsToUse = [...SLOT_DEFS_NORMAL];
+            
+            if (isDog && isSummerDate) {
+                slotsToUse.splice(2, 0, SLOT_SUMMER_EARLY);
+                slotsToUse.splice(slotsToUse.length - 1, 0, SLOT_SUMMER_NIGHT);
+            }
+
+            slotsToUse.forEach((def, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'cal-slot-btn';
+                btn.dataset.type = def.type;
+                if(def.type.includes('summer')) {
+                    btn.classList.add('summer');
+                }
+                
+                const parts = def.label.split('\n');
+                let html = `<span class="time">${parts[0]}</span>`;
+                
+                const uniqueKey = `${dateKey}-${def.type}`;
+                const selection = calendarState.selected[uniqueKey];
+                
+                if (selection) {
+                    btn.classList.add('selected');
+                    if ((def.type === 'none' || def.type.includes('summer')) && selection.count > 1) {
+                          html = `<span class="time">${parts[0]} x${selection.count}</span>`;
+                    } else if (selection.count > 1) {
+                          html = `<span class="time">${parts[0]} x${selection.count}</span>`;
+                    }
+                }
+                
+                if(parts[1]) html += `<span style="font-size:10px;">${parts[1]}</span>`;
+                btn.innerHTML = html;
+
+                btn.onclick = () => {
+                    if (!calendarState.selected[uniqueKey]) {
+                        calendarState.selected[uniqueKey] = {
+                            dateStr: getDayLabel(new Date(dateKey)),
+                            label: def.label.replace('\n', ' '),
+                            type: def.type,
+                            count: 1
+                        };
+                    } else {
+                        if (def.type === 'none') {
+                            calendarState.selected[uniqueKey].count++;
+                            if (calendarState.selected[uniqueKey].count > 4) delete calendarState.selected[uniqueKey];
+                        } else {
+                            delete calendarState.selected[uniqueKey];
+                        }
+                    }
+                    updateCalendarUI(); 
+                    reflectSelection();
+                };
+                slotsDiv.appendChild(btn);
+            });
+            dayCol.appendChild(slotsDiv);
+            grid.appendChild(dayCol);
+            currentLoopDate.setDate(currentLoopDate.getDate() + 1);
+        }
+      }
+
+      function reflectSelection() {
+        const txtArea = document.getElementById('selectedDates');
+        const sortedKeys = Object.keys(calendarState.selected).sort();
+        let lines = [];
+        let totalCount = 0;
+        sortedKeys.forEach(key => {
+            const item = calendarState.selected[key];
+            const c = item.count || 1;
+            const suffix = c > 1 ? ` (x${c})` : '';
+            lines.push(`${item.dateStr}: ${item.label}${suffix}`);
+            totalCount += c;
+        });
+        txtArea.value = lines.join('\n');
+        document.getElementById('displayCount').textContent = totalCount;
+        updateGroomingOptions(totalCount);
+        calcOriginal();
+      }
+      
+      function slideCalendar(offset) {
+          const grid = document.getElementById('calGrid');
+          const isPass = document.getElementById('priorityPass').checked;
+          const monthsAhead = isPass ? 6 : 2;
+          
+          const now = new Date();
+          const maxDate = new Date();
+          maxDate.setMonth(now.getMonth() + monthsAhead);
+          
+          const targetDate = new Date(calendarState.startDate);
+          targetDate.setDate(targetDate.getDate() + (offset * 3));
+          
+          if (offset > 0 && targetDate > maxDate) {
+              return;
+          }
+
+          if (offset > 0) {
+              grid.classList.add('anim-slide-in-right');
+          } else {
+              grid.classList.add('anim-slide-in-left');
+          }
+
+          calendarState.startDate = targetDate;
+          updateCalendarUI();
+
+          const newGrid = document.getElementById('calGrid'); 
+          if (offset > 0) {
+               newGrid.classList.add('anim-slide-in-right');
+          } else {
+               newGrid.classList.add('anim-slide-in-left');
+          }
+          
+          setTimeout(() => {
+              newGrid.classList.remove('anim-slide-in-right');
+              newGrid.classList.remove('anim-slide-in-left');
+          }, 350);
+      }
+
+      // Swipe Logic
+      const calContainer = document.querySelector('.cal-container');
+      let touchStartX = 0;
+      calContainer.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive: true});
+      calContainer.addEventListener('touchend', e => {
+        const diff = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(diff) > 50) { 
+            if (diff < 0) {
+                 slideCalendar(1);
+            } else {
+                 slideCalendar(-1);
+            }
+        }
+      }, {passive: true});
+
+      document.getElementById('calPrevBtn').onclick = () => { slideCalendar(-1); };
+      document.getElementById('calNextBtn').onclick = () => { slideCalendar(1); };
+
+      /* --- Calculation Logic (Original) --- */
+      function calcOriginal() {
+        const courseVal = document.getElementById('course').value;
+        const isPass = document.getElementById('priorityPass').checked;
+        const isPre = document.getElementById('premiumBooking').checked;
+        const count = parseInt(document.getElementById('displayCount').textContent) || 0;
+        const isSummerCheckbox = document.getElementById('summerWalk').checked;
+
+        let basePrice = parseInt(courseVal);
+        let ppPrice = basePrice - 440;
+        let prePrice = basePrice - 770; 
+
+        let unitPrice = basePrice;
+        let discountDisplay = "";
+        
+        if (isPass) {
+            unitPrice = ppPrice;
+            discountDisplay = "-440円";
+            if (isPre) {
+                unitPrice = prePrice;
+                discountDisplay = "-770円";
+            }
+        }
+        document.getElementById('ppDiscountTag').textContent = discountDisplay;
+
+        let optTotal = 0;
+        document.querySelectorAll('.opt:checked').forEach(el => optTotal += parseInt(el.value));
+
+        let flexTotal = 0;
+        if(document.getElementById('today').checked) flexTotal += isPass ? 770 : 990;
+        if(document.getElementById('outOfHours').checked) flexTotal += isPass ? 2420 : 2640;
+        if(document.getElementById('midnight').checked) flexTotal += isPass ? 3740 : 3960;
+        
+        document.getElementById('todayP').innerHTML = isPass ? `+770円` : "+990円";
+        document.getElementById('outP').innerHTML = isPass ? `+2,420円` : "+2,640円";
+        document.getElementById('midP').innerHTML = isPass ? `+3,740円` : "+3,960円";
+
+        let displayOneTime = unitPrice + optTotal;
+        if(isSummerCheckbox) displayOneTime += 440;
+        document.getElementById('servOnly').textContent = displayOneTime.toLocaleString();
+        
+        let transCost = 0; 
+        let transDisplay = document.getElementById('transP');
+        let transNote = document.getElementById('transNote');
+        if(isPass) {
+            transCost = 550;
+            transDisplay.textContent = "550"; 
+            transNote.textContent = "（プライオリティ・パス適用）";
+        } else {
+            transCost = 770;
+            transDisplay.textContent = "770";
+            transNote.textContent = "";
+        }
+        
+        let fmCost = 0;
+        const userType = document.getElementById('userTypeState').value;
+        if(userType === 'first') { 
+            if(document.getElementById('fmVisit').checked) fmCost += 3300;
+            if(document.getElementById('fmOnline').checked) fmCost += 3300;
+        }
+        
+        if(isPass) {
+            document.getElementById('fmVisitTag').innerHTML = `<span class="strike">+3,300円</span> 無料`;
+            document.getElementById('fmOnlineTag').innerHTML = `<span class="strike">+3,300円</span> 無料`;
+            fmCost = 0; 
+        } else {
+             document.getElementById('fmVisitTag').textContent = "+3,300円";
+             document.getElementById('fmOnlineTag').textContent = "+3,300円";
+        }
+
+        let groomCost = 0;
+        document.querySelectorAll('.grooming-select').forEach(sel => {
+              const unitP = parseInt(sel.dataset.price);
+              const qty = parseInt(sel.value) || 0;
+              groomCost += qty * unitP;
+        });
+        document.getElementById('groomingTotal').textContent = groomCost.toLocaleString();
+
+        let summerSurchargeTotal = 0;
+        Object.keys(calendarState.selected).forEach(key => {
+            const item = calendarState.selected[key];
+            if(item.type === 'summer_early' || item.type === 'summer_night') {
+                summerSurchargeTotal += (440 * (item.count || 1));
+            }
+        });
+
+        let grand = ((unitPrice + optTotal + transCost) * count) + summerSurchargeTotal + flexTotal + fmCost + groomCost;
+        document.getElementById('grand').textContent = grand.toLocaleString() + "円";
+      }
+
+      /* --- Grooming List Generation --- */
+      const DOG_ITEMS = ["爪切り +550円", "耳洗浄 +550円", "アンダーコートケア +550円", "歯磨きケア +550円", "目元カット +550円", "口元カット +550円", "お尻周りカット +550円", "足回りカット +550円"];
+      const CAT_ITEMS = ["爪切り +550円", "耳掃除 +550円", "アンダーコートケア +550円", "歯磨きケア +550円", "顎ニキビケア +550円", "肉球周りカット +550円", "お尻周りカット +550円", "肛門絞り +550円", "ドライシャンプー +550円"];
+      
+      function genGrooming() {
+        const make = (items, id) => {
+            const c = document.getElementById(id);
+            let html = `
+                <div class="checkbox-item" style="padding:8px 12px; background-color:#FAF3EE; border:1px solid #E1A95F;">
+                    <div style="display:flex; flex-direction:column; flex:1;">
+                        <span style="font-size:14px; font-weight:700;">選べるグルーミングセット +1,210円</span>
+                        <span style="font-size:11px; color:#555;">（補足）↓よりお好きなメニューを3つ選べます。</span>
+                    </div>
+                    <select class="grooming-select" data-price="1210" style="width:70px; padding:4px; margin:0;">
+                        <option value="0">0回</option>
+                    </select>
+                </div>
+            `;
+            html += items.map(i => `
+                <div class="checkbox-item" style="padding:8px 12px;">
+                    <div style="display:flex; flex-direction:column; flex:1;">
+                         <span style="font-size:14px;">${i}</span>
+                    </div>
+                    <select class="grooming-select" data-price="550" style="width:70px; padding:4px; margin:0;">
+                        <option value="0">0回</option>
+                    </select>
+                </div>
+            `).join('');
+            c.innerHTML = html;
+        };
+        make(DOG_ITEMS, 'dogGroomingList');
+        make(CAT_ITEMS, 'catGroomingList');
+        
+        document.querySelectorAll('.grooming-select').forEach(s => s.addEventListener('change', calcOriginal));
+      }
+      genGrooming();
+      
+      function updateGroomingOptions(cnt) {
+        document.querySelectorAll('.grooming-select').forEach(sel => {
+            const v = parseInt(sel.value);
+            sel.innerHTML = '';
+            for(let i=0; i<=cnt; i++) {
+                const o = document.createElement('option');
+                o.value = i; o.textContent = i+'回';
+                if(i===v) o.selected = true;
+                sel.appendChild(o);
+            }
+        });
+      }
+
+      /* --- Copy Text (Original) --- */
+      function copyTextOriginal() {
+        const name = document.getElementById('name').value;
+        const userType = document.getElementById('userTypeState').value;
+        let details = "";
+        
+        if(userType === 'second') {
+            details += `【2回目以降のご利用】\n`;
+        } else {
+            const addr = document.getElementById('address').value;
+            const tel = document.getElementById('tel').value;
+            const pet = document.getElementById('petInfo').value;
+            details += `ご住所: ${addr}\n電話番号: ${tel}\nペット: ${pet}\n`;
+        }
+        
+        const course = document.getElementById('course');
+        details += `コース: ${course.options[course.selectedIndex].text}\n`;
+        if(document.getElementById('priorityPass').checked) details += `・プライオリティ・パス適用\n`;
+        if(document.getElementById('premiumBooking').checked) details += `・プレミアム予約 (最安料金保証)\n`;
+        if(document.getElementById('summerWalk').checked) details += `・夏季のお散歩\n`;
+        
+        document.querySelectorAll('.opt:checked').forEach(o => details += `・${o.dataset.label}\n`);
+        document.querySelectorAll('.speciality:checked').forEach(o => details += `・${o.dataset.label} (別途見積)\n`);
+        
+        let groomText = "";
+        document.querySelectorAll('.grooming-select').forEach(sel => {
+             const qty = parseInt(sel.value);
+             if(qty > 0) {
+                 const container = sel.closest('.checkbox-item');
+                 const label = container.querySelector('span').textContent; 
+                 groomText += `・${label} x${qty}\n`;
+             }
+        });
+        if(groomText) details += `【グルーミング】\n${groomText}`;
+
+        const dates = document.getElementById('selectedDates').value;
+        const total = document.getElementById('grand').textContent;
+        
+        const msg = `【お問い合わせ内容】\nお名前: ${name}さま\n${details}\n■ご希望日程\n${dates}\n----------------\n合計金額: ${total}`;
+        
+        const ta = document.createElement('textarea');
+        ta.value = msg; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        alert('コピーしました');
+      }
+
+      // Event Listeners (Original)
+      document.getElementById('calcForm').addEventListener('change', calcOriginal);
+      document.querySelectorAll('.pet-check').forEach(c => c.addEventListener('change', () => {
+        const d = document.getElementById('petDog').checked;
+        const c = document.getElementById('petCat').checked;
+        document.getElementById('groomingSection').style.display = (d||c) ? 'block' : 'none';
+        document.getElementById('groomingDog').style.display = d ? 'block' : 'none';
+        document.getElementById('groomingCat').style.display = c ? 'block' : 'none';
+        updateCalendarUI();
+      }));
+      
+      // ==========================================
+      // SPECIAL PLANS LOGIC
+      // ==========================================
+      let sp_schedules = [];
+      const PLAN_NAMES = {
+        'long': '長時間プラン',
+        'stay_sleep': '宿泊プラン〈添い寝〉',
+        'stay_watch': '宿泊プラン〈見守り〉',
+        'event': 'イベントプラン'
+      };
+
+      function updateDateRangeSp() {
+        const today = new Date();
+        const minDate = new Date(today);
+        minDate.setDate(today.getDate() + 7);
+
+        const maxDate = new Date(today);
+        const isPrem = document.getElementById('sp_priorityPass').checked;
+        if (isPrem) {
+          maxDate.setMonth(today.getMonth() + 6);
+        } else {
+          maxDate.setMonth(today.getMonth() + 2);
+        }
+
+        const dateInput = document.getElementById('sp_addDate');
+        dateInput.min = minDate.toISOString().split('T')[0];
+        dateInput.max = maxDate.toISOString().split('T')[0];
+        
+        if (!dateInput.value || dateInput.value < dateInput.min) {
+          dateInput.value = dateInput.min;
+        } else if (dateInput.value > dateInput.max) {
+          dateInput.value = dateInput.max;
+        }
+      }
+
+      function updateAdderUI_Sp() {
+        const type = document.getElementById('sp_addPlanType').value;
+        let min = 1.0, max = 16.0;
+        
+        if (type === 'long') { min = 2.5; max = 16.0; }
+        else if (type.startsWith('stay')) { min = 8.0; max = 12.0; }
+        else if (type === 'event') { min = 2.0; max = 16.0; }
+
+        const durSelect = document.getElementById('sp_addDuration');
+        const currentDuration = parseFloat(durSelect.value);
+        let html = '';
+        let isCurrentValid = false;
+        
+        for (let i = min; i <= max; i += 0.5) {
+          const selected = (currentDuration === i) ? 'selected' : '';
+          if (currentDuration === i) isCurrentValid = true;
+          html += `<option value="${i}" ${selected}>${i.toFixed(1)}時間</option>`;
+        }
+        durSelect.innerHTML = html;
+        if (!isCurrentValid) durSelect.value = min;
+
+        const priceNote = document.getElementById('sp_supportPriceNote');
+        document.getElementById('sp_supportOptionArea').style.display = 'block';
+        if (type === 'stay_sleep') {
+          priceNote.textContent = '一律 +2,640円';
+        } else {
+          priceNote.textContent = '1h / +330円';
+        }
+        checkTimeRulesSp();
+      }
+
+      function checkTimeRulesSp() {
+        const type = document.getElementById('sp_addPlanType').value;
+        const duration = parseFloat(document.getElementById('sp_addDuration').value) || 0;
+        const timeInput = document.getElementById('sp_addTime');
+        const timeVal = timeInput.value;
+        
+        if (!timeVal || !duration) return;
+
+        const [hStr, mStr] = timeVal.split(':');
+        let currentHourVal = parseInt(hStr) + (parseInt(mStr) / 60);
+
+        if (type.startsWith('stay')) {
+          const maxStart = Math.min(21.0, 33.0 - duration);
+          const minStart = 29.0 - duration;
+          let effectiveHour = currentHourVal;
+          if (effectiveHour < 9.0) effectiveHour += 24.0;
+
+          if (effectiveHour > maxStart) {
+            setTimesFromFloatSp(maxStart);
+          } else if (effectiveHour < minStart) {
+            if (minStart <= maxStart) {
+               setTimesFromFloatSp(minStart);
+            } else {
+               setTimesFromFloatSp(maxStart);
+            }
+          }
+        } else {
+          const minStart = 5.0;
+          const maxStart = 22.0 - duration;
+          if (maxStart < minStart) {
+            return; 
+          }
+          if (currentHourVal < minStart) {
+            setTimesFromFloatSp(minStart);
+          } else if (currentHourVal > maxStart) {
+            setTimesFromFloatSp(maxStart);
+          }
+        }
+      }
+
+      function setTimesFromFloatSp(floatHour) {
+        let h = floatHour;
+        if (h >= 24) h -= 24;
+        const hh = Math.floor(h);
+        const mm = Math.round((h - hh) * 60);
+        const fmtH = hh.toString().padStart(2, '0');
+        const fmtM = mm.toString().padStart(2, '0');
+        document.getElementById('sp_addTime').value = `${fmtH}:${fmtM}`;
+      }
+
+      function calculateItemCostSp(item) {
+        const type = item.planType;
+        const h = parseFloat(item.duration) || 0;
+        const isPrem = document.getElementById('sp_priorityPass').checked;
+        const hasSupport = item.specialSupport;
+        
+        let baseCost = 0;
+        if (type === 'long' || type === 'stay_sleep') {
+          if (h <= 8) { baseCost = h * 3300; } 
+          else { baseCost = (8 * 3300) + ((h - 8) * 3960); }
+        } else if (type === 'stay_watch') {
+          if (h <= 8) { baseCost = h * 4400; } 
+          else { baseCost = (8 * 4400) + ((h - 8) * 5280); }
+        } else if (type === 'event') {
+          if (h <= 2) { baseCost = 11000; } 
+          else if (h <= 8) { baseCost = 11000 + ((h - 2) * 4400); } 
+          else { baseCost = 11000 + (6 * 4400) + ((h - 8) * 5280); }
+        }
+
+        const premDiscount = isPrem ? Math.floor(h * 440) : 0;
+        
+        let supportCost = 0;
+        if (hasSupport) {
+          if (type === 'stay_sleep') {
+            supportCost = 2640; 
+          } else {
+            supportCost = Math.floor(h * 330);
+          }
+        }
+        
+        let transCost = 0;
+        if (type !== 'event') {
+          transCost = isPrem ? 550 : 770; // Adjusted based on requirements (550 for PP)
+        }
+
+        return {
+          total: Math.floor(baseCost - premDiscount + supportCost + transCost)
+        };
+      }
+
+      function calculateTimeRangeSp(dateStr, timeStr, duration) {
+        if (!dateStr || !timeStr) return null;
+        const h = parseFloat(duration) || 0;
+        const start = new Date(`${dateStr}T${timeStr}`);
+        const end = new Date(start.getTime() + (h * 60 * 60 * 1000));
+        
+        const startDay = start.getDate();
+        const endDay = end.getDate();
+        const isNextDay = startDay !== endDay;
+
+        const fmt = (d) => d.toLocaleTimeString('ja-JP', {hour: '2-digit', minute:'2-digit'});
+        
+        // --- Date Format Change: YYYY/MM/DD(Day) ---
+        const days = ['日', '月', '火', '水', '木', '金', '土'];
+        const y = start.getFullYear();
+        const m = String(start.getMonth() + 1).padStart(2, '0');
+        const d = String(start.getDate()).padStart(2, '0');
+        const day = days[start.getDay()];
+        const dateDisplay = `${y}/${m}/${d}（${day}）`;
+        
+        // End date simplified for next day badge
+        const endDateDisplay = `${end.getMonth()+1}/${end.getDate()}`;
+
+        return {
+          dateDisplay, startTime: fmt(start), endTime: fmt(end), isNextDay, endDateDisplay, duration: h
+        };
+      }
+
+      function addScheduleSp() {
+        if (sp_schedules.length >= 9) {
+          alert("スケジュールは最大9件までです。");
+          return;
+        }
+        const dateVal = document.getElementById('sp_addDate').value;
+        const timeVal = document.getElementById('sp_addTime').value;
+        const planVal = document.getElementById('sp_addPlanType').value;
+        const durVal = document.getElementById('sp_addDuration').value;
+        const supportVal = document.getElementById('sp_addSpecialSupport').checked;
+        
+        if (!dateVal || !timeVal) {
+          alert("訪問日と開始時刻を入力してください。");
+          return;
+        }
+        checkTimeRulesSp(); // Final check
+
+        sp_schedules.push({
+          id: Date.now(),
+          date: dateVal,
+          time: document.getElementById('sp_addTime').value,
+          planType: planVal,
+          duration: durVal,
+          specialSupport: supportVal
+        });
+        renderSchedulesSp();
+      }
+
+      function removeScheduleSp(id) {
+        sp_schedules = sp_schedules.filter(s => s.id !== id);
+        renderSchedulesSp();
+      }
+
+      function renderSchedulesSp() {
+        const isPrem = document.getElementById('sp_priorityPass').checked;
+        document.getElementById('sp_ppDiscountTag').textContent = isPrem ? "-440円/h" : "";
+        
+        const listArea = document.getElementById('sp_scheduleListArea');
+        listArea.innerHTML = "";
+        
+        const sorted = [...sp_schedules].sort((a,b) => {
+          return new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`);
+        });
+
+        let grandTotal = 0;
+        let hasEventPlan = false;
+
+        sorted.forEach(item => {
+          if (item.planType === 'event') hasEventPlan = true;
+          const timeInfo = calculateTimeRangeSp(item.date, item.time, item.duration);
+          if (!timeInfo) return;
+
+          const cost = calculateItemCostSp(item);
+          grandTotal += cost.total;
+
+          const nextDayBadge = timeInfo.isNextDay ? `<span class="sc-next-day">翌日${timeInfo.endDateDisplay}</span>` : '';
+          const supportBadge = item.specialSupport ? `<span class="badge-support">サポート有</span>` : '';
+          let suffix = item.planType === 'event' ? "(税込)" : "(税・往復交通費込)";
+
+          const div = document.createElement('div');
+          div.className = 'schedule-card';
+          div.innerHTML = `
+            <div class="sc-header">
+              <div class="sc-info-col">
+                <span class="sc-date">📅 ${timeInfo.dateDisplay}</span>
+                <span class="sc-plan-name">${PLAN_NAMES[item.planType]}</span>
+              </div>
+              <span class="sc-remove" onclick="removeScheduleSp(${item.id})">×</span>
+            </div>
+            <div class="sc-time-row">
+              <span>${timeInfo.startTime}</span>
+              <span class="sc-arrow">➤</span>
+              <span>${timeInfo.endTime}${nextDayBadge}</span>
+              <span style="font-size:12px; background:#eee; padding:2px 6px; border-radius:4px; margin-left:5px;">${item.duration}h</span>
+              ${supportBadge}
+            </div>
+            <div class="sc-price">
+              ${cost.total.toLocaleString()}円 <span style="font-size:10px; font-weight:400; color:#888;">${suffix}</span>
+            </div>
+          `;
+          listArea.appendChild(div);
+        });
+
+        // Add First Meet Cost if applicable
+        const userType = document.getElementById('sp_userTypeState').value;
+        const fmVisit = document.getElementById('sp_fmVisit').checked;
+        const fmOnline = document.getElementById('sp_fmOnline').checked;
+        let fmCost = 0;
+        
+        if (userType === 'first' && (fmVisit || fmOnline)) {
+            // If PP is checked, FM is free (as per original logic logic)
+            // But we need to check checkbox status.
+            if (!isPrem) {
+                if (fmVisit) fmCost += 3300;
+                if (fmOnline) fmCost += 3300;
+            }
+        }
+        
+        // Update FM Tags visually
+        if (isPrem) {
+             document.getElementById('sp_fmVisitTag').innerHTML = `<span class="strike">+3,300円</span> 無料`;
+             document.getElementById('sp_fmOnlineTag').innerHTML = `<span class="strike">+3,300円</span> 無料`;
+        } else {
+             document.getElementById('sp_fmVisitTag').textContent = "+3,300円";
+             document.getElementById('sp_fmOnlineTag').textContent = "+3,300円";
+        }
+
+        grandTotal += fmCost;
+
+        document.getElementById('sp_grand').textContent = grandTotal.toLocaleString() + "円";
+        document.getElementById('sp_totalLabel').textContent = `合計金額 (${sp_schedules.length}回分)`;
+        
+        const btnAdd = document.getElementById('sp_btnAddSchedule');
+        btnAdd.disabled = (sp_schedules.length >= 9);
+        btnAdd.textContent = (sp_schedules.length >= 9) ? "これ以上追加できません" : "リストに追加";
+
+        document.getElementById('sp_eventPlanNote').style.display = hasEventPlan ? "block" : "none";
+      }
+
+      // Special Plan Listeners
+      document.getElementById('sp_addPlanType').addEventListener('change', updateAdderUI_Sp);
+      document.getElementById('sp_addDuration').addEventListener('change', checkTimeRulesSp);
+      document.getElementById('sp_addTime').addEventListener('change', checkTimeRulesSp);
+      document.getElementById('sp_btnAddSchedule').addEventListener('click', addScheduleSp);
+      
+      // Listen for FM changes to update total
+      document.getElementById('sp_fmVisit').addEventListener('change', renderSchedulesSp);
+      document.getElementById('sp_fmOnline').addEventListener('change', renderSchedulesSp);
+
+      function copyTextSp() {
+        const name = document.getElementById('sp_name').value;
+        const isPrem = document.getElementById('sp_priorityPass').checked ? 'はい' : 'いいえ';
+        const userType = document.getElementById('sp_userTypeState').value;
+        
+        let details = "";
+        if(userType === 'second') {
+            details += `【2回目以降のご利用】\n`;
+        } else {
+            const addr = document.getElementById('sp_address').value;
+            const tel = document.getElementById('sp_tel').value;
+            const pet = document.getElementById('sp_petInfo').value;
+            details += `ご住所: ${addr}\n電話番号: ${tel}\nペット: ${pet}\n`;
+        }
+
+        const sorted = [...sp_schedules].sort((a,b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+        let scheduleText = "";
+        let hasEvent = false;
+        
+        if (sorted.length === 0) {
+          scheduleText = "（スケジュール未選択）";
+        } else {
+          sorted.forEach(item => {
+             if (item.planType === 'event') hasEvent = true;
+             const t = calculateTimeRangeSp(item.date, item.time, item.duration);
+             const nextMark = t.isNextDay ? `(翌${t.endDateDisplay})` : '';
+             const supportTxt = item.specialSupport ? ' [特別サポート有]' : '';
+             scheduleText += `・${t.dateDisplay} ${PLAN_NAMES[item.planType]} ${t.startTime}～${t.endTime}${nextMark} (${item.duration}h)${supportTxt}\n`;
+          });
+        }
+
+        // FM Info
+        if (userType === 'first') {
+            if(document.getElementById('sp_fmVisit').checked) details += `・ファーストミート(訪問)希望\n`;
+            if(document.getElementById('sp_fmOnline').checked) details += `・ファーストミート(WEB)希望\n`;
+        }
+
+        let note = "";
+        if (hasEvent) {
+          note = "\n※イベントプランが含まれているため、出張費は別途計算となります。";
+        }
+
+        const msg = `【お問い合わせ内容 (Special)】
+お名前: ${name}さま
+${details}
+プライオリティ・パス: ${isPrem}
+
+■ご希望スケジュール（全${sp_schedules.length}回）
+${scheduleText}
+----------------
+合計金額: ${document.getElementById('sp_grand').textContent}${note}`;
+
+        const ta = document.createElement('textarea');
+        ta.value = msg; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        alert('コピーしました');
+      }
+      
+      // Load logic
+      togglePPState();
+
+    </script>
+  </body>
+</html>
