@@ -508,7 +508,7 @@
                     <!-- 1st Line: Always Visible -->
                     <div class="pp-header-row">
                         <label class="check-label-wrap" style="cursor: pointer;" onclick="event.stopPropagation()">
-                            <input type="checkbox" id="priorityPass" data-label="プライオリティ・パス" onchange="togglePPState()">
+                            <input type="checkbox" id="priorityPass" data-label="プライオリティ・パス" onchange="togglePPState()" checked>
                             <div class="check-text-col">
                                 <span class="check-main" style="color:#fff;">プライオリティ・パス</span>
                             </div>
@@ -526,7 +526,7 @@
                         <!-- PP Content Body (No Accordion) -->
                         <div style="padding: 15px;">
                             <div>
-                                <span class="pp-price-info">月 3,300円</span>
+                                <span class="pp-price-info">月々 3,300円（見積もりには含まれません）</span>
                                 <ul class="pp-benefits-list">
                                     <li>＊6ヶ月先までの先行予約が解禁されます。</li>
                                     <li>＊サービス料金が440円割引されます。</li>
@@ -536,7 +536,7 @@
                                 </ul>
                                 <!-- New Message Replacement for Button -->
                                 <div style="font-weight:700; color:var(--terracotta-accent); font-size:13px; text-align:center; margin-top:10px; border:1px dashed var(--terracotta-accent); padding:8px; border-radius:6px; background-color:#fff;">
-                                    新規購入は担当シッターにご連絡ください。
+                                    詳しくは担当シッターにご相談ください。
                                 </div>
                             </div>
                         </div>
@@ -554,9 +554,9 @@
                         
                         <!-- Notes Moved Inside Frame -->
                         <div style="padding: 0 15px 15px 15px;">
-                            <span class="note" style="margin:0; font-size:11px;">＊プライオリティ・パスの継続利用 3ヶ月目よりご利用いただけます。</span>
-                            <span class="note" style="margin:0; font-size:11px;">＊年間パスを購入された方、定期利用される方は1ヶ月目からご利用いただけます。</span>
-                            <span class="note" style="margin:0; font-size:11px;">＊事前決済・返金不可ですが、一定の条件下でスケジュール変更は可能です。</span>
+                            <span class="note" style="margin:0; font-size:11px;">＊プライオリティ・パス継続 3ヶ月目よりご利用いただけます。</span>
+                            <span class="note" style="margin:0; font-size:11px;">＊定期利用の方は1ヶ月目からご利用いただけます。</span>
+                            <span class="note" style="margin:0; font-size:11px;">＊事前決済ですが、一定の条件の上でスケジュール変更は可能です。</span>
                         </div>
 
                     </div>
@@ -844,7 +844,7 @@
                     <!-- 1st Line: Always Visible -->
                     <div class="pp-header-row">
                         <label class="check-label-wrap" style="cursor: pointer;" onclick="event.stopPropagation()">
-                            <input type="checkbox" id="sp_priorityPass" data-label="プライオリティ・パス" onchange="togglePPStateSp()">
+                            <input type="checkbox" id="sp_priorityPass" data-label="プライオリティ・パス" onchange="togglePPStateSp()" checked>
                             <div class="check-text-col">
                                 <span class="check-main" style="color:#fff;">プライオリティ・パス</span>
                             </div>
@@ -858,7 +858,7 @@
                     <div class="pp-content-frame">
                         <div style="padding: 15px;">
                             <div>
-                                <span class="pp-price-info">月 3,300円</span>
+                                <span class="pp-price-info">月々 3,300円（見積もりには含まれません）</span>
                                 <ul class="pp-benefits-list">
                                     <li>＊6ヶ月先までの先行予約が解禁されます。</li>
                                     <li>＊サービス料金が440円割引されます。</li>
@@ -867,7 +867,7 @@
                                     <li>＊ファーストミートが〈無料〉になります。</li>
                                 </ul>
                                 <div style="font-weight:700; color:var(--terracotta-accent); font-size:13px; text-align:center; margin-top:10px; border:1px dashed var(--terracotta-accent); padding:8px; border-radius:6px; background-color:#fff;">
-                                    新規購入は担当シッターにご連絡ください。
+                                    詳しくは担当シッターにご相談ください。
                                 </div>
                             </div>
                         </div>
@@ -1022,6 +1022,7 @@
             // Init Special Plan
             updateAdderUI_Sp();
             updateDateRangeSp();
+            renderSchedulesSp(); // 追加: これで割引タグなどが初期表示される
         }
       }
       
